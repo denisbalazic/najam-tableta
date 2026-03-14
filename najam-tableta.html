@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSE Type 2 Expert Academy 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #f7f8fa;
+      --card-bg: #ffffff;
+      --text: #1a1a2e;
+      --text-body: #3a3a4a;
+      --muted: #888899;
+      --border: rgba(0,0,0,0.09);
+      --yellow: #f5c800;
+      --orange: #e8832a;
+      --green: #1aaa6a;
+      --grad: linear-gradient(90deg, #f5c800 0%, #e8832a 40%, #c8d630 70%, #1aaa6a 100%);
+      --grad-btn: linear-gradient(90deg, #f5c800, #e8832a);
+      --grad-viewer: linear-gradient(90deg, #e8832a, #c8d630);
+      --grad-green: linear-gradient(90deg, #c8d630, #1aaa6a);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Subtle dot grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Bottom gradient bar like in the visual */
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 7px;
+      background: var(--grad);
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    /* ── PASSWORD SCREEN ── */
+    #passwordPrompt {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 100;
+      background: var(--bg);
+    }
+
+    /* Gradient bar on password screen too */
+    #passwordPrompt::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 7px;
+      background: var(--grad);
+    }
+
+    .lock-icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+    }
+
+    #passwordPrompt h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    #passwordPrompt input {
+      padding: 14px 20px;
+      font-size: 16px;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      width: 280px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    #passwordPrompt input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(232,131,42,0.12);
+    }
+
+    #passwordPrompt input::placeholder { color: var(--muted); letter-spacing: 0.05em; }
+
+    #passwordPrompt button {
+      padding: 13px 36px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: var(--grad-btn);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 4px 14px rgba(232,131,42,0.3);
+    }
+
+    #passwordPrompt button:hover { opacity: 0.88; transform: translateY(-1px); }
+    #passwordPrompt button:active { transform: translateY(0); }
+
+    #errorMessage {
+      color: #e03030;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    /* ── MAIN CONTENT ── */
+    #content {
+      display: none;
+      position: relative;
+      z-index: 1;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 60px 28px 100px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 64px;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    .header-eyebrow {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--orange);
+      border: 1.5px solid rgba(232,131,42,0.35);
+      padding: 6px 18px;
+      border-radius: 100px;
+      margin-bottom: 22px;
+    }
+
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      background: var(--grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+    }
+
+    .header-sub {
+      color: var(--muted);
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+    }
+
+    /* Date sections */
+    .date-section {
+      margin-bottom: 48px;
+    }
+
+    .date-label {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .date-label-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .date-label-pill {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--grad-btn);
+      flex-shrink: 0;
+    }
+
+    .date-label-line {
+      flex: 1;
+      height: 2px;
+      background: var(--grad);
+      border-radius: 2px;
+      opacity: 0.4;
+    }
+
+    /* Grid */
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+    }
+
+    /* Card */
+    .case-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 22px 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s;
+      animation: fadeUp 0.6s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .case-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--grad);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .case-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(232,131,42,0.3);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+    }
+
+    .case-card:hover::before { opacity: 1; }
+
+    .card-index {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .case-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.02rem;
+      font-weight: 700;
+      line-height: 1.45;
+      color: var(--text);
+      margin-bottom: 20px;
+      min-height: 3em;
+    }
+
+    /* Links */
+    .case-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .link-btn.presenter {
+      background: var(--grad-btn);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(232,131,42,0.25);
+    }
+
+    .link-btn.presenter:hover {
+      box-shadow: 0 5px 18px rgba(232,131,42,0.4);
+      transform: translateY(-1px);
+    }
+
+    .link-btn.viewer {
+      background: var(--grad-viewer);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(200,214,48,0.2);
+    }
+
+    .link-btn.viewer:hover {
+      box-shadow: 0 5px 18px rgba(200,214,48,0.35);
+      transform: translateY(-1px);
+    }
+
+    .link-btn.test {
+      background: var(--surface);
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+    }
+
+    .link-btn.test:hover {
+      background: #eee;
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .link-btn.single {
+      background: var(--grad-green);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(26,170,106,0.25);
+    }
+
+    .link-btn.single:hover {
+      box-shadow: 0 5px 18px rgba(26,170,106,0.4);
+      transform: translateY(-1px);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .case-card:nth-child(1) { animation-delay: 0.05s; }
+    .case-card:nth-child(2) { animation-delay: 0.10s; }
+    .case-card:nth-child(3) { animation-delay: 0.15s; }
+    .case-card:nth-child(4) { animation-delay: 0.20s; }
+    .case-card:nth-child(5) { animation-delay: 0.25s; }
+    .case-card:nth-child(6) { animation-delay: 0.30s; }
+    .case-card:nth-child(7) { animation-delay: 0.35s; }
+    .case-card:nth-child(8) { animation-delay: 0.40s; }
+
+    @media (max-width: 600px) {
+      #content { padding: 40px 18px 60px; }
+      .case-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="passwordPrompt">
+  <div class="lock-icon">🔒</div>
+  <h2>Unesi lozinku</h2>
+  <input type="password" id="passwordInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPassword()">
+  <button onclick="checkPassword()">Potvrdi</button>
+  <p id="errorMessage">Netočna lozinka. Pokušaj ponovo.</p>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="content">
+  <div class="header">
+    <div class="header-eyebrow">Medical Education Program</div>
+    <h1>CSE Type 2 Expert Academy 2026</h1>
+    <p class="header-sub">Case Presentations & Interactive Sessions</p>
+  </div>
+
+  <!-- DAY 1: 13.03.2026 -->
+  <div class="date-section">
+    <div class="date-label">
+      <div class="date-label-pill"></div>
+      <span class="date-label-text">13. ožujka 2026.</span>
+      <div class="date-label-line"></div>
+    </div>
+    <div class="case-grid">
+
+      <div class="case-card">
+        <div class="card-index">Session 01</div>
+        <h2 class="case-title">One Airway, Two Disease, One Biologic?<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Prof. Francesca Puggioni / Prof. Osnat Livne-Shtraichman</small></h2>
+        <div class="case-links">
+          <a class="link-btn presenter" href="https://case-player-online.nobula.eu?roomId=69afdbc4aff75a57a3a25b1f&roomAdmin=true" target="_blank" rel="noopener">▶ Prezenter</a>
+          <a class="link-btn viewer" href="https://case-player-online.nobula.eu?roomId=69afdbc4aff75a57a3a25b1f" target="_blank" rel="noopener">👁 Viewer</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=69aed1a8aff75a57a3a21217" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="card-index">Session 02</div>
+        <h2 class="case-title">EGPA With Biologics<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Prof. Arkadi Yakirevich</small></h2>
+        <div class="case-links">
+          <a class="link-btn presenter" href="https://case-player-online.nobula.eu?roomId=69ae828caff75a57a3a186bb&roomAdmin=true" target="_blank" rel="noopener">▶ Prezenter</a>
+          <a class="link-btn viewer" href="https://case-player-online.nobula.eu?roomId=69ae828caff75a57a3a186bb" target="_blank" rel="noopener">👁 Viewer</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu/presentation?presentationId=69943f7a4783b117ed895750" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="card-index">Session 03</div>
+        <h2 class="case-title">Case Report – Severe Asthma<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Prof. Cristian Oancea</small></h2>
+        <div class="case-links">
+          <a class="link-btn presenter" href="https://case-player-online.nobula.eu?roomId=69ae9462aff75a57a3a1f0c7&roomAdmin=true" target="_blank" rel="noopener">▶ Prezenter</a>
+          <a class="link-btn viewer" href="https://case-player-online.nobula.eu?roomId=69ae9462aff75a57a3a1f0c7" target="_blank" rel="noopener">👁 Viewer</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=69a9323e970a908af6cb972d" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="card-index">Session 04</div>
+        <h2 class="case-title">One Airway, Two Diseases, One Biologic?<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Dr. Rabia Shihada</small></h2>
+        <div class="case-links">
+          <a class="link-btn single" href="https://case-player-online.nobula.eu?presentationId=699d811b4783b117ed8a7d63" target="_blank" rel="noopener">▶ Link</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=699d811b4783b117ed8a7d63" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="card-index">Session 05</div>
+        <h2 class="case-title">One Immune Axis, One Skin Barrier, One Biologic?<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Prof. Narbut</small></h2>
+        <div class="case-links">
+          <a class="link-btn single" href="https://case-player-online.nobula.eu?presentationId=699ec43d04f09515c8663a1f" target="_blank" rel="noopener">▶ Link</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=699ec43d04f09515c8663a1f" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="card-index">Session 06</div>
+        <h2 class="case-title">Severe Eczema in Infants<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Prof. Shoshi Grinberger</small></h2>
+        <div class="case-links">
+          <a class="link-btn single" href="https://case-player-online.nobula.eu?presentationId=69afe91eaff75a57a3a26f0f" target="_blank" rel="noopener">▶ Link</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=69afe91eaff75a57a3a26f0f" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="card-index">Session 07</div>
+        <h2 class="case-title">Severe Atopic Dermatitis<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Prof. Magda Constantin</small></h2>
+        <div class="case-links">
+          <a class="link-btn single" href="https://case-player-online.nobula.eu?presentationId=69ae7e96aff75a57a3a17e95" target="_blank" rel="noopener">▶ Link</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=69ae7e96aff75a57a3a17e95" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="card-index">Session 08</div>
+        <h2 class="case-title">Severe Pediatric Atopic Dermatitis<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Aleksandra Lesiak</small></h2>
+        <div class="case-links">
+          <a class="link-btn single" href="https://case-player-online.nobula.eu?presentationId=699da74bdf9c5f56ae1ad80e" target="_blank" rel="noopener">▶ Link</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=699da74bdf9c5f56ae1ad80e" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DAY 2: 14.03.2026 -->
+  <div class="date-section">
+    <div class="date-label">
+      <div class="date-label-pill"></div>
+      <span class="date-label-text">14. ožujka 2026.</span>
+      <div class="date-label-line"></div>
+    </div>
+    <div class="case-grid">
+
+      <div class="case-card">
+        <div class="card-index">Session 09</div>
+        <h2 class="case-title">Dupilumab in COPD<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Prof. Bumbacea / Dr. Amir Bar Shaii</small></h2>
+        <div class="case-links">
+          <a class="link-btn presenter" href="https://case-player-online.nobula.eu?roomId=69ae9440aff75a57a3a1f081&roomAdmin=true" target="_blank" rel="noopener">▶ Prezenter</a>
+          <a class="link-btn viewer" href="https://case-player-online.nobula.eu?roomId=69ae9440aff75a57a3a1f081" target="_blank" rel="noopener">👁 Viewer</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=69a83a20970a908af6cb7748" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+      <div class="case-card">
+        <div class="card-index">Session 10</div>
+        <h2 class="case-title">SMELL<br><small style="font-weight:400;font-size:0.88em;color:var(--muted)">Dr. Zdenek Knizek</small></h2>
+        <div class="case-links">
+          <a class="link-btn presenter" href="https://case-player-online.nobula.eu?roomId=69ae8656aff75a57a3a18ec6&roomAdmin=true" target="_blank" rel="noopener">▶ Prezenter</a>
+          <a class="link-btn viewer" href="https://case-player-online.nobula.eu?roomId=69ae8656aff75a57a3a18ec6" target="_blank" rel="noopener">👁 Viewer</a>
+          <a class="link-btn test" href="https://case-player-online.nobula.eu?presentationId=6997067c4783b117ed89d1e7" target="_blank" rel="noopener">Test</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function checkPassword() {
+    var input = document.getElementById("passwordInput");
+    var error = document.getElementById("errorMessage");
+    if (!input || !error) return;
+    if (input.value === "dedal1234") {
+      document.getElementById("passwordPrompt").style.display = "none";
+      document.getElementById("content").style.display = "block";
+      error.style.display = "none";
+    } else {
+      error.style.display = "block";
+      input.value = "";
+      input.focus();
+    }
+  }
+</script>
+
+</body>
+</html>
